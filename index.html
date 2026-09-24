@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mr. Brown's 4th Grade</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕳️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+/* ================================================================
+   YOUR LIST IS IN THE <script> AT THE BOTTOM. Scroll down to LIST.
+   ================================================================ */
+  :root {
+    --text: #F3F0FF;
+    --muted: #A9A3C7;
+    --disk: #FFB347;
+    --hot: #FFE8B0;
+    --panel: rgba(10, 8, 22, 0.72);
+    --line: rgba(255, 200, 120, 0.14);
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body {
+    margin: 0; min-height: 100%; background: #020108; color: var(--text);
+    font-family: "Lexend", "Segoe UI", system-ui, sans-serif; font-size: 1.1rem; line-height: 1.5;
+  }
+  canvas#space { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 0; display: block; }
+
+  .wrap { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 0 1.25rem 4rem; }
+  header { padding-top: 42vh; text-align: center; }
+  h1 {
+    margin: 0; font-weight: 800; letter-spacing: -0.02em;
+    font-size: clamp(2rem, 6vw, 3.25rem); line-height: 1.05;
+    text-shadow: 0 2px 24px rgba(0,0,0,.9);
+  }
+  .sub { margin: .4rem 0 1.5rem; color: var(--muted); text-shadow: 0 1px 12px rgba(0,0,0,.9); }
+
+  .search { position: relative; }
+  .search input {
+    width: 100%; font: inherit; font-size: 1.3rem; color: var(--text);
+    background: rgba(8, 6, 18, 0.85); border: 2px solid rgba(255, 179, 71, 0.45);
+    border-radius: 999px; padding: 1rem 1.4rem 1rem 3.3rem; outline: none;
+    box-shadow: 0 0 40px rgba(255, 150, 60, 0.18);
+    transition: border-color .15s, box-shadow .15s;
+  }
+  .search input::placeholder { color: #8C86AA; }
+  .search input:focus { border-color: var(--disk); box-shadow: 0 0 0 4px rgba(255,179,71,.25), 0 0 60px rgba(255,150,60,.3); }
+  .search svg { position: absolute; left: 1.2rem; top: 50%; transform: translateY(-50%); width: 1.4rem; height: 1.4rem; stroke: var(--disk); }
+  .hint { margin: .6rem 0 0; font-size: .9rem; color: var(--muted); text-align: center; text-shadow: 0 1px 8px #000; }
+  kbd { font-family: inherit; border: 1px solid var(--muted); border-radius: 5px; padding: 0 .35rem; font-size: .8rem; }
+
+  .panel {
+    margin-top: 1.75rem; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 22px; padding: .5rem 1.25rem;
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+  }
+  .count { font-size: .9rem; color: var(--muted); padding: .75rem 0 .25rem; margin: 0; }
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { border-top: 1px solid var(--line); }
+  li:first-child { border-top: none; }
+  li > a, li > p { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; padding: .85rem 0; margin: 0; }
+  li > a { color: var(--text); text-decoration: none; font-weight: 500; }
+  li > a:hover .label, li > a:focus-visible .label { color: var(--hot); text-decoration: underline; text-underline-offset: 3px; }
+  li > a:focus-visible { outline: 3px solid var(--disk); outline-offset: 2px; border-radius: 8px; }
+  li > p { color: var(--muted); }
+  li > p .label::before { content: "•"; color: var(--disk); margin-right: .6rem; }
+  .host { flex: none; font-size: .8rem; color: var(--muted); font-weight: 400; }
+  mark { background: rgba(255, 179, 71, 0.35); color: inherit; border-radius: 3px; padding: 0 1px; }
+  .empty { padding: 1.25rem 0; color: var(--muted); margin: 0; }
+  .empty strong { color: var(--text); }
+  li.first > a .label { color: var(--hot); }
+
+  @media (max-width: 520px) {
+    header { padding-top: 36vh; }
+    .host { display: none; }
+  }
+</style>
+</head>
+<body>
+<canvas id="space" aria-hidden="true"></canvas>
+
+<div class="wrap">
+  <header>
+    <h1 id="title">Mr. Brown's 4th Grade</h1>
+    <p class="sub">Everything you need is in here. Search for it.</p>
+    <div class="search" role="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg>
+      <input id="q" type="search" autocomplete="off" spellcheck="false"
+             placeholder="Try: math, login, field trip…" aria-label="Search the class list">
+    </div>
+    <p class="hint">Press <kbd>Enter</kbd> to open the top result. Press <kbd>/</kbd> to search from anywhere.</p>
+  </header>
+
+  <div class="panel">
+    <p class="count" id="count" aria-live="polite"></p>
+    <ul id="list"></ul>
+  </div>
+</div>
+
+<script>
+/* ================================================================
+   YOUR LIST. One thing per line. Newest at the top.
+     Link:   Words people will search for | https://the-link
+     Info:   Just type the sentence (no | needed)
+   Blank lines and lines starting with // are ignored.
+   Tip: add extra search words in the label, e.g. "Math practice (fractions, homework)"
+   ================================================================ */
+const LIST = `
+Field trip forms are due Friday. Bring them back signed.
+Not on Mr. Brown's roster? Ask the front office for your login, then come back here.
+Student login (start here, passwords, apps) | https://example.com/login
+Reading practice (books, quizzes, AR) | https://example.com/reading
+Math practice (fractions, multiplication, homework) | https://example.com/math
+Typing practice (keyboard, warm up) | https://example.com/typing
+Library catalog (find a book) | https://example.com/library
+Spelling words this week | https://example.com/spelling
+Science: states of matter quiz is Oct 3.
+No school Oct 10 (teacher workday).
+Absent? Check the "While You Were Out" folder by the door.
+Forgot your password? Tell Mr. Brown at school. Never share it with a friend.
+Email Mr. Brown (families) | mailto:yourname@school.org
+`;
+/* ====================== end of your list ====================== */
+
+const items = LIST.split("\n")
+  .map(l => l.trim())
+  .filter(l => l && !l.startsWith("//"))
+  .map(l => {
+    const i = l.lastIndexOf("|");
+    if (i > -1) {
+      const url = l.slice(i + 1).trim();
+      let host = "";
+      try { host = url.startsWith("mailto:") ? "email" : new URL(url).hostname.replace(/^www\./, ""); } catch (e) {}
+      return { label: l.slice(0, i).trim(), url, host };
+    }
+    return { label: l };
+  });
+
+const $q = document.getElementById("q"), $list = document.getElementById("list"), $count = document.getElementById("count");
+const esc = s => s.replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+function highlight(text, words) {
+  let out = esc(text);
+  if (!words.length) return out;
+  const re = new RegExp("(" + words.map(w => reEsc(esc(w))).join("|") + ")", "gi");
+  return out.replace(re, "<mark>$1</mark>");
+}
+
+function render() {
+  const words = $q.value.toLowerCase().split(/\s+/).filter(Boolean);
+  const hits = items.filter(it => {
+    const hay = (it.label + " " + (it.host || "")).toLowerCase();
+    return words.every(w => hay.includes(w));
+  });
+
+  if (!hits.length) {
+    $count.textContent = "";
+    $list.innerHTML = `<li><p class="empty">Nothing matches <strong>“${esc($q.value)}”</strong>. Try a shorter word, or ask Mr. Brown.</p></li>`;
+    return;
+  }
+  $count.textContent = words.length ? `${hits.length} match${hits.length === 1 ? "" : "es"}` : `${hits.length} things in here`;
+  $list.innerHTML = hits.map((it, idx) => {
+    const lbl = `<span class="label">${highlight(it.label, words)}</span>`;
+    const first = words.length && idx === 0 && it.url ? ' class="first"' : "";
+    return it.url
+      ? `<li${first}><a href="${esc(it.url)}" target="_blank" rel="noopener">${lbl}<span class="host">${esc(it.host)}</span></a></li>`
+      : `<li><p>${lbl}</p></li>`;
+  }).join("");
+}
+
+$q.addEventListener("input", render);
+$q.addEventListener("keydown", e => {
+  if (e.key === "Enter") { const a = $list.querySelector("a"); if (a) window.open(a.href, "_blank", "noopener"); }
+  if (e.key === "Escape") { $q.value = ""; render(); }
+});
+document.addEventListener("keydown", e => {
+  if (e.key === "/" && document.activeElement !== $q) { e.preventDefault(); $q.focus(); }
+});
+render();
+
+/* ======================== black hole ======================== */
+(() => {
+  const cv = document.getElementById("space"), ctx = cv.getContext("2d");
+  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W, H, cx, cy, R, stars, parts, starLayer, raf;
+
+  function setup() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    W = innerWidth; H = innerHeight;
+    cv.width = W * dpr; cv.height = H * dpr; ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    cx = W / 2; cy = H * (W < 520 ? 0.19 : 0.22);
+    R = Math.min(W, H) * (W < 520 ? 0.085 : 0.075);
+
+    // star field painted once
+    starLayer = document.createElement("canvas");
+    starLayer.width = W * dpr; starLayer.height = H * dpr;
+    const s = starLayer.getContext("2d"); s.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const n = Math.round(W * H / 3500);
+    for (let i = 0; i < n; i++) {
+      const x = Math.random() * W, y = Math.random() * H, d = Math.hypot(x - cx, y - cy);
+      if (d < R * 1.4) continue;
+      s.fillStyle = `rgba(${200 + Math.random() * 55},${200 + Math.random() * 55},255,${Math.random() * 0.7 + 0.15})`;
+      s.fillRect(x, y, Math.random() < 0.08 ? 2 : 1, Math.random() < 0.08 ? 2 : 1);
+    }
+
+    const count = W < 520 ? 700 : 1400;
+    parts = Array.from({ length: count }, () => {
+      const r = R * (1.6 + Math.pow(Math.random(), 1.7) * 3.6);
+      return { r, a: Math.random() * Math.PI * 2, sp: 0.9 * Math.pow(R / r, 1.5) * (0.9 + Math.random() * 0.2), sz: Math.random() * 1.4 + 0.5 };
+    });
+  }
+
+  function color(r, alpha) {
+    const t = Math.min(1, (r / R - 1.6) / 3.6);            // 0 inner -> 1 outer
+    const g = Math.round(235 - t * 150), b = Math.round(190 - t * 175);
+    return `rgba(255,${g},${Math.max(b, 20)},${alpha})`;
+  }
+
+  function frame(dt) {
+    ctx.clearRect(0, 0, W, H);
+    ctx.drawImage(starLayer, 0, 0, W, H);
+
+    // soft glow around the whole thing
+    const glow = ctx.createRadialGradient(cx, cy, R, cx, cy, R * 6);
+    glow.addColorStop(0, "rgba(255,150,60,0.18)"); glow.addColorStop(1, "rgba(255,120,40,0)");
+    ctx.fillStyle = glow; ctx.fillRect(0, 0, W, H);
+
+    const tilt = 0.22;
+    ctx.globalCompositeOperation = "lighter";
+
+    // far side of the disk + its lensed image bent up over the top
+    for (const p of parts) {
+      p.a += p.sp * dt;
+      const s = Math.sin(p.a);
+      if (s < 0) {
+        const c = Math.cos(p.a);
+        ctx.fillStyle = color(p.r, 0.5);
+        ctx.fillRect(cx + c * p.r, cy + s * p.r * tilt, p.sz, p.sz);
+        const lr = R * 1.18 + (p.r - R * 1.6) * 0.32;          // lensed ring radius
+        ctx.fillStyle = color(p.r, 0.35);
+        ctx.fillRect(cx + c * lr, cy + s * lr, p.sz, p.sz);
+      }
+    }
+
+    // photon ring
+    ctx.globalCompositeOperation = "source-over";
+    const ring = ctx.createRadialGradient(cx, cy, R * 0.95, cx, cy, R * 1.35);
+    ring.addColorStop(0, "rgba(255,235,190,0.9)"); ring.addColorStop(0.25, "rgba(255,170,80,0.35)"); ring.addColorStop(1, "rgba(255,140,50,0)");
+    ctx.fillStyle = ring; ctx.beginPath(); ctx.arc(cx, cy, R * 1.35, 0, Math.PI * 2); ctx.fill();
+
+    // event horizon
+    ctx.fillStyle = "#000"; ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.fill();
+
+    // near side of the disk crosses in front of the hole
+    ctx.globalCompositeOperation = "lighter";
+    for (const p of parts) {
+      const s = Math.sin(p.a);
+      if (s >= 0) {
+        ctx.fillStyle = color(p.r, 0.75);
+        ctx.fillRect(cx + Math.cos(p.a) * p.r, cy + s * p.r * tilt, p.sz, p.sz);
+      }
+    }
+    ctx.globalCompositeOperation = "source-over";
+  }
+
+  let last = 0;
+  function loop(t) {
+    const dt = Math.min((t - last) / 1000, 0.05); last = t;
+    frame(dt); raf = requestAnimationFrame(loop);
+  }
+  function start() { cancelAnimationFrame(raf); setup(); if (still) frame(0); else { last = performance.now(); raf = requestAnimationFrame(loop); } }
+
+  let rt; addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(start, 150); });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) cancelAnimationFrame(raf);
+    else if (!still) { last = performance.now(); raf = requestAnimationFrame(loop); }
+  });
+  start();
+})();
+</script>
+</body>
+</html>
